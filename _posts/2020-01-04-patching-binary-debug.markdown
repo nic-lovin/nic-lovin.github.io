@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Patching binary in order to debug child process"
-date:   2019-12-22 12:39:47 -0400
+date:   2020-01-04 12:39:47 -0400
 categories: Reverse engineering
 ---
 I sometimes stumble into binaries that use `CreateProcess`, `CreateProcessInternal`, `CreateThread` or any functions like that. In this case, the binary is using `CreateProcess` function. When debugging with `xdbg`, we cannot follow the code excution. In order to debug the binary, I often patch it, then run it and hook to it. I am not an expert in reverse engineering and I am pretty confident that there might be as good or even better ways to do it.
