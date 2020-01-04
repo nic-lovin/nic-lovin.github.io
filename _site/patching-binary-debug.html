@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- Meta -->
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+	<meta name="generator" content="Jekyll">
+
+	<title>Patching binary in order to debug child process</title>
+  <meta name="description" content="A minimal, responsive, ready to use blog template, built with Jekyll.">
+
+	<!-- CSS & fonts -->
+	<link rel="stylesheet" href="/monochrome/css/main.css">
+
+	<!-- RSS -->
+	<link href="/atom.xml" type="application/atom+xml" rel="alternate" title="ATOM Feed" />
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/png" href="img/favicon.png">
+
+</head>
+
+
+<body>
+	<div id="wrap">
+	  	
+	  	<!-- Navigation -->
+	  	<nav id="nav">
+	<div id="nav-list">
+		<a href="/monochrome/">Home</a>
+
+		<!-- Nav pages -->
+	  
+	    
+	  
+	    
+	      <a href="/monochrome/about" title="About">About</a>
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+    
+    <!-- Nav links -->
+	  
+
+	</div>
+  
+  <!-- Nav footer -->
+	
+	  <footer>
+	
+	<span>version 1.0.0</span>
+
+</footer>
+	
+
+</nav>
+
+    
+    <!-- Icon menu -->
+	  <a id="nav-menu">
+	  	<div id="menu"></div>
+	  </a>
+
+      <!-- Header -->
+      
+        <header id="header" class="parent justify-spaceBetween">
+  <div class="inner w100 relative">
+    <span class="f-left">  
+      <a href="/monochrome/">
+        <h1>
+          <span>nic-</span>lovin
+        </h1>
+      </a>
+    </span>
+    <span id="nav-links" class="absolute right bottom">
+      <!-- Nav pages -->
+	    
+	      
+	    
+	      
+	        <a href="/monochrome/about" title="About">About</a>
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+      
+      <!-- Nav links -->
+	    
+
+    </span>
+  </div>
+</header>
+
+
+
+
+      
+
+    <!-- Main content -->
+	  <div id="container">
+		  
+		<main>
+
+			<article id="post-page">
+	<h2>Patching binary in order to debug child process</h2>		
+	<time datetime="2019-12-22T11:39:47-05:00" class="by-line">22 Dec 2019</time>
+	<div class="content">
+
+		<p>I sometimes stumble into binaries that use <code class="highlighter-rouge">CreateProcess</code>. When debugging with <code class="highlighter-rouge">xdbg</code>, we cannot follow the code excution. In order to debug the binary, I often patch it, then run it and hook to it. I am not an expert in reverse engineering and I am pretty confident that there might be as good or even better ways to do it.</p>
+
+<blockquote>
+  <p>TLDR: patch the binary with <code class="highlighter-rouge">0xebfe</code>, execute and attach it.</p>
+</blockquote>
+
+<h2 id="hooking-createprocess">Hooking <code class="highlighter-rouge">CreateProcess</code></h2>
+<p>I have a binary that will create child process using <code class="highlighter-rouge">CreateProcessA</code>. I knew this function was called using <code class="highlighter-rouge">Process Monitor</code> from sysinternals (and from <code class="highlighter-rouge">Imports</code> in IDA), so I ran <code class="highlighter-rouge">xdbg</code> with <code class="highlighter-rouge">debug.exe</code>, put a breakpoint using <code class="highlighter-rouge">bp CreateProcessA</code>. I executed it until it hit the breakpoint.</p>
+
+<p><img src="/assets/bp_createprocess.png" alt="Breakpoint on CreateProcessA" /></p>
+
+<p>We don’t really want to debug <code class="highlighter-rouge">CreateProcessA</code> function, so we can step until we get back to the user code (<code class="highlighter-rouge">F4</code>). From there, we can see the stack (or look at registers for x64 binaries) and take a look on how the process was created with its arguments.</p>
+
+<p><img src="/assets/return_createprocess.png" alt="After CreateProcessA" /></p>
+
+<p><img src="/assets/stack_createprocess.png" alt="Stack before CreateProcessA" /></p>
+
+<p>As it is not a post on how to reverse engineer and find functions in binary, I won’t go in details on how I found the function called when the binary is calling itself with arguments. One could look at the arguments, find the string in the binary and go from there and find where that string is used (<code class="highlighter-rouge">xref</code> in IDA).</p>
+
+<p>When I found where it all led, the function looked like:</p>
+
+<p><img src="/assets/createprocess_function.png" alt="Function called when CreateProcessA is used" /></p>
+
+<h2 id="and-that-infinite-loop">And that infinite loop</h2>
+<p><code class="highlighter-rouge">0xebfe</code> is 2-byte instruction that creates and infinite loop. Patching the first bytes with <code class="highlighter-rouge">0xebfe</code> with cause the function to run infinitely and that’s perfect for use. We will want to attach the binary as soon as the function is being executed to be able to debug everything.</p>
+
+<p>In IDA, we can patch bytes using <code class="highlighter-rouge">Edit &gt; Patch program &gt; Change Byte</code>. Save the first bytes and instructions that will be overwritten somewhere with <code class="highlighter-rouge">EB FE</code>. The call graph should change to:</p>
+
+<p><img src="/assets/function_ebfe.png" alt="Breakpoint on CreateProcessA" /></p>
+
+<p>We were lucky this time that the first instructions were 1-byte long. If you encounter a multi-byte instructions, you can fill it with <code class="highlighter-rouge">0x90</code>, which is a <code class="highlighter-rouge">NOP</code> instruction.</p>
+
+<h2 id="attach-the-patched-binary">Attach the patched binary</h2>
+<p>Next thing, run the original binary without <code class="highlighter-rouge">xdbg</code> and check at the processes list with <code class="highlighter-rouge">Process explorer</code>.</p>
+
+<p><img src="/assets/ebfe_binary.png" alt="Breakpoint on CreateProcessA" /></p>
+
+<p>If we right-click, select <code class="highlighter-rouge">Properties...</code>, we should see the same <code class="highlighter-rouge">Command line</code> as in <code class="highlighter-rouge">xdbg</code>.</p>
+
+<p>Now, launch <code class="highlighter-rouge">xdbg</code>, attach the binary being ran, <code class="highlighter-rouge">File &gt; Attach</code>, and find the function we earlier modified: <code class="highlighter-rouge">CTRL + G</code>, and we should see our <code class="highlighter-rouge">EB FE</code> bytes.</p>
+
+<p><img src="/assets/ebfe_xdbg.png" alt="Breakpoint on CreateProcessA" /></p>
+
+<p>From there, we can to patch again the binary; click on the instruction and press <code class="highlighter-rouge">Space</code>. Change instruction to the orignals one and the function should be as it was at first:</p>
+
+<p><img src="/assets/original_function_xdbg.png" alt="Breakpoint on CreateProcessA" /></p>
+
+<p>And you can now debug your function as it was originally.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>We saw how patching a binary with 2 bytes can help us debugging a binary when it creates a child process:</p>
+<ul>
+  <li>Find where the <code class="highlighter-rouge">CreateProcessA</code> is used</li>
+  <li>Find what it calls</li>
+  <li>Replace the first bytes of the function with <code class="highlighter-rouge">0xebfe</code></li>
+  <li>Run the binary, attach to it</li>
+  <li>Find our patched function, patch it again to the original instructions</li>
+  <li>Debug it.</li>
+</ul>
+
+<p>Using this technique can also bypass some anti-debuggers and might be useful when dealing with malware. However, run malware in a sandbox/virtual machine only!</p>
+
+		
+	</div>
+</article>
+
+
+
+	  </main>
+		
+		  <!-- Pagination links -->
+      
+
+	  </div>
+	    
+	    <!-- Footer -->
+	    <footer><span>@2017 - Monochrome</span></footer>
+
+
+	    <!-- Script -->
+      <script src="/monochrome/js/main.js"></script>	
+
+
+	</div>
+</body>
+</html>
