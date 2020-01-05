@@ -45,7 +45,7 @@ Now, launch `xdbg`, attach the binary being ran, `File > Attach`, and find the f
 
 ![Breakpoint on CreateProcessA](/assets/ebfe_xdbg.png)
 
-From there, we can to patch again the binary; click on the instruction and press `Space`. Change instruction to the orignals one and the function should be as it was at first:
+From there, we can patch again the binary; click on the instruction and press `Space`. Change instruction to the orignals one and the function should be as it was at first:
 
 ![Breakpoint on CreateProcessA](/assets/original_function_xdbg.png) 
 
