@@ -11,7 +11,7 @@ The context of the binary is a simple challenge where the user enters an input a
 
 ![Loop of unpacking](/assets/unpacking/loop.png)
 
-What happens here is in (1) `i` is put in `eax` register (and is value is 0), then the packed code is put in `rdx` register (2). The binary xors one byte at a time the blob in `code` with `0x0B` (3). This is repeated until `i` is equal of below `0x96`. At (4), the unpacked code is put in `rdx`, and the code is finally called at (5).
+What happens here is in (1) `i` is put in `eax` register (and its value is 0), then the packed code is put in `rdx` register (2). The binary xors one byte at a time the blob in `code` with `0x0B` (3). This is repeated until `i` is equal of below `0x96`. At (4), the unpacked code is moved in `rdx`, and the code is finally called at (5).
 
 The C code will look like:
 ``` c
@@ -26,7 +26,7 @@ What the code blob looks like:
 
 ![Code blob](/assets/unpacking/code.png)
 
-And IDA wrongly disassembled some code. We can undefine what was disassembled by pressing `u`
+And IDA wrongly disassembled some code. We can undefine what was disassembled by pressing `u`.
 
 One could put a breakpoint just before `call rdx`, dump the memory and analyze it, but we are here to unpack it using IDA.
 
