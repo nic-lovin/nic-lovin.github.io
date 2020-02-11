@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Simple unpacking using IDA (Python)"
+summary: "Quick and easy unpacking and then create a function"
 date:   2020-02-09 17:1:47 -0400
 categories: Reverse engineering
 ---
