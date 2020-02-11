@@ -11,7 +11,7 @@ The context of the binary is a simple challenge where the user enters an input a
 
 ![Loop of unpacking](/assets/unpacking/loop.png)
 
-What happens here is in (1) `i` is put in `eax` register (and its value is 0), then the packed code is put in `rdx` register (2). The binary xors one byte at a time the blob in `code` with `0x0B` (3). This is repeated until `i` is equal of below `0x96`. At (4), the unpacked code is moved in `rdx`, and the code is finally called at (5).
+What happens here is in (1) `i` is put in `eax` register (and its value is 0), then the packed code is put in `rdx` register (2). The binary xors, one byte at a time, the blob in `code` with `0x0B` (3). This is repeated until `i` is equal or below `0x96`. At (4), the unpacked code is moved in `rdx`, and the code is finally called at (5).
 
 The C code will look like:
 ``` c
@@ -56,11 +56,11 @@ Looking at our `code` blob, we can confirm they have been patched.
 ![Patched code](/assets/unpacking/patched.png)
 
 ## Creating the function
-Now that we unpacked the `code`, we can to tell IDA to disasemble it. This can be done via `Edit -> Code` or by pressing `c`.
+Now that we unpacked the `code`, we can tell IDA to disasemble it. This can be done via `Edit -> Code` or by pressing `c`.
 
 ![Diassembly of patched code](/assets/unpacking/patched_disassembly.png)
 
-Having this in a function where we can analyze it with the Graph View would help. Pressing `p` with create a function. Finally, pressing the space bar and we get this:
+Having this in a function where we can analyze it with the Graph View would help. Pressing `p` will create a function. Finally, pressing the space bar and we get this:
 
 ![Created function graph](/assets/unpacking/graph.png)
 
