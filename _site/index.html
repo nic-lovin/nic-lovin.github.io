@@ -7,11 +7,28 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 	<meta name="generator" content="Jekyll">
 
-	<title>Monochrome | A minimal, responsive Jekyll blog theme</title>
-  <meta name="description" content="A minimal, responsive, ready to use blog template, built with Jekyll.">
+	<!-- Twitter cards -->
+	<meta name="twitter:site"    content="@_nlovin">
+	<meta name="twitter:creator" content="@_nlovin">
+	<meta name="twitter:title"   content="">
+
+	
+	<meta name="twitter:description" content="I write things that might be useful">
+	
+
+	
+	<meta name="twitter:card"  content="summary">
+	<meta name="twitter:image" content="">
+	
+	<!-- end of Twitter cards -->
+
+
+
+	<title>nic-lovin's blog</title>
+	<meta name="description" content="I write things that might be useful">
 
 	<!-- CSS & fonts -->
-	<link rel="stylesheet" href="/monochrome/css/main.css">
+	<link rel="stylesheet" href="/css/main.css">
 
 	<!-- RSS -->
 	<link href="/atom.xml" type="application/atom+xml" rel="alternate" title="ATOM Feed" />
@@ -28,14 +45,14 @@
 	  	<!-- Navigation -->
 	  	<nav id="nav">
 	<div id="nav-list">
-		<a href="/monochrome/">Home</a>
+		<a href="//">Home</a>
 
 		<!-- Nav pages -->
 	  
 	    
 	  
 	    
-	      <a href="/monochrome/about" title="About">About</a>
+	      <a href="/about" title="About">About</a>
 	    
 	  
 	    
@@ -56,11 +73,8 @@
   
   <!-- Nav footer -->
 	
-	  <footer>
-	
-	<span>version 1.0.0</span>
+	  
 
-</footer>
 	
 
 </nav>
@@ -76,7 +90,7 @@
         <header id="header" class="parent justify-spaceBetween">
   <div class="inner w100 relative">
     <span class="f-left">  
-      <a href="/monochrome/">
+      <a href="//">
         <h1>
           <span>nic-</span>lovin
         </h1>
@@ -88,7 +102,7 @@
 	      
 	    
 	      
-	        <a href="/monochrome/about" title="About">About</a>
+	        <a href="/about" title="About">About</a>
 	      
 	    
 	      
@@ -125,17 +139,17 @@
 	
 
 	  <li class="post">
-	  	<h2><a href="/monochrome/patching-binary-debug">Patching binary in order to debug child process</a></h2>
-      <time datetime="2019-12-22T11:39:47-05:00" class="by-line"> <i>22 Dec 2019</i> </time>
-	  	<p>I sometimes stumble into binaries that use CreateProcess. When debugging with xdbg, we cannot follow the code excution. In order to debug the binary, I often patch it, then run it and hook to it. I am not an expert in reverse engineering and I am pretty confident that there...</p>
+	  	<h2><a href="/simple-unpacking-with-ida">Simple unpacking using IDA (Python)</a></h2>
+      <time datetime="2020-02-09T16:01:47-05:00" class="by-line"> <i>09 Feb 2020</i> </time>
+	  	<p>Unpacking binaries is a common thing in malware analysis and binaries in CTFs. I used to put a breakpoint just before the unpacked was called, dumped the memory and analyzed it, but this comes with a lot of disadvantages (I still do it though.). In this post, I’ll show how...</p>
 	  </li>
 
     
 
 	  <li class="post">
-	  	<h2><a href="/monochrome/code-example">Code Syntax Example</a></h2>
-      <time datetime="2017-02-12T00:00:00-05:00" class="by-line"> <i>12 Feb 2017</i> </time>
-	  	<p>To insert highlight code inside of a post, it’s enough to use some specific tags, has directly described into the Jekyll documentation. In this way the code will be included into a .highlight CSS class and will be highlight according to the syntax.scss file. This is the standard style adopted...</p>
+	  	<h2><a href="/patching-binary-debug">Patching binary in order to debug child process</a></h2>
+      <time datetime="2020-01-04T11:39:47-05:00" class="by-line"> <i>04 Jan 2020</i> </time>
+	  	<p>I sometimes stumble into binaries that use CreateProcess, CreateProcessInternal, CreateThread or any functions like that. In this case, the binary is using CreateProcess function. When debugging with xdbg, we cannot follow the code excution. In order to debug the binary, I often patch it, then run it and hook to...</p>
 	  </li>
 
     
@@ -151,11 +165,10 @@
 	  </div>
 	    
 	    <!-- Footer -->
-	    <footer><span>@2017 - Monochrome</span></footer>
-
+	    
 
 	    <!-- Script -->
-      <script src="/monochrome/js/main.js"></script>	
+      <script src="/js/main.js"></script>	
 
 
 	</div>

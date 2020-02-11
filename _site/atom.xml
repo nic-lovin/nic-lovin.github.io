@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
- <title>Monochrome | A minimal, responsive Jekyll blog theme</title>
+ <title>nic-lovin's blog</title>
  <link href="http://localhost:4000/atom.xml" rel="self"/>
  <id>http://localhost:4000</id>
- <updated>2020-01-04T15:53:21-05:00</updated>
+ <updated>2020-02-11T09:44:29-05:00</updated>
  <author>
-   <name>The Review Index</name>
-   <uri>https://thereviewindex.com</uri>
-   <email>dyutibarma@gmail.com</email>
+   <name>Nicolas Lamoureux</name>
+   <uri>https://nic-lovin.github.io</uri>
+   <email></email>
  </author>
+
+ 
+
+ <entry>
+   <title>Simple unpacking using IDA (Python)</title>
+   <link href="http://localhost:4000/simple-unpacking-with-ida"/>
+   <id>http://localhost:4000/simple-unpacking-with-ida</id>
+   <updated>2020-02-09T16:01:47-05:00</updated>
+   <content type="html">&lt;p&gt;Unpacking binaries is a common thing in malware analysis and binaries in CTFs. I used to put a breakpoint just before the unpacked was called, dumped the memory and analyzed it, but this comes with a lot of disadvantages (I still do it though.). In this post, I’ll show how...</content>
+ </entry>
 
  
 
@@ -17,18 +27,8 @@
    <title>Patching binary in order to debug child process</title>
    <link href="http://localhost:4000/patching-binary-debug"/>
    <id>http://localhost:4000/patching-binary-debug</id>
-   <updated>2019-12-22T11:39:47-05:00</updated>
-   <content type="html">&lt;p&gt;I sometimes stumble into binaries that use &lt;code class=&quot;highlighter-rouge&quot;&gt;CreateProcess&lt;/code&gt;. When debugging with &lt;code class=&quot;highlighter-rouge&quot;&gt;xdbg&lt;/code&gt;, we cannot follow the code excution. In order to debug the binary, I often patch it, then run it and hook to it. I am not an expert in reverse engineering and I am pretty confident...</content>
- </entry>
-
- 
-
- <entry>
-   <title>Code Example</title>
-   <link href="http://localhost:4000/code-example"/>
-   <id>http://localhost:4000/code-example</id>
-   <updated>2017-02-12T00:00:00-05:00</updated>
-   <content type="html">&lt;p&gt;To insert highlight code inside of a post, it’s enough to use some specific tags, has directly described into the &lt;a href=&quot;http://jekyllrb.com/docs/templates/#code-snippet-highlighting&quot;&gt;Jekyll documentation&lt;/a&gt;. In this way the code will be included into a &lt;code class=&quot;highlighter-rouge&quot;&gt;.highlight&lt;/code&gt; CSS class and will be highlight according to the &lt;a href=&quot;https://github.com/mojombo/tpw/blob/master/css/syntax.css&quot;&gt;syntax.scss&lt;/a&gt; file. This is the...</content>
+   <updated>2020-01-04T11:39:47-05:00</updated>
+   <content type="html">&lt;p&gt;I sometimes stumble into binaries that use &lt;code class=&quot;highlighter-rouge&quot;&gt;CreateProcess&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;CreateProcessInternal&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;CreateThread&lt;/code&gt; or any functions like that. In this case, the binary is using &lt;code class=&quot;highlighter-rouge&quot;&gt;CreateProcess&lt;/code&gt; function. When debugging with &lt;code class=&quot;highlighter-rouge&quot;&gt;xdbg&lt;/code&gt;, we cannot follow the code excution. In order to debug the binary, I often patch it, then...</content>
  </entry>
 
  

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- Meta -->
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+	<meta name="generator" content="Jekyll">
+
+	<!-- Twitter cards -->
+	<meta name="twitter:site"    content="@_nlovin">
+	<meta name="twitter:creator" content="@_nlovin">
+	<meta name="twitter:title"   content="Simple unpacking using IDA (Python)">
+
+	
+	<meta name="twitter:description" content="I write things that might be useful">
+	
+
+	
+	<meta name="twitter:card"  content="summary">
+	<meta name="twitter:image" content="">
+	
+	<!-- end of Twitter cards -->
+
+
+
+	<title>Simple unpacking using IDA (Python)</title>
+	<meta name="description" content="I write things that might be useful">
+
+	<!-- CSS & fonts -->
+	<link rel="stylesheet" href="/css/main.css">
+
+	<!-- RSS -->
+	<link href="/atom.xml" type="application/atom+xml" rel="alternate" title="ATOM Feed" />
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/png" href="img/favicon.png">
+
+</head>
+
+
+<body>
+	<div id="wrap">
+	  	
+	  	<!-- Navigation -->
+	  	<nav id="nav">
+	<div id="nav-list">
+		<a href="//">Home</a>
+
+		<!-- Nav pages -->
+	  
+	    
+	  
+	    
+	      <a href="/about" title="About">About</a>
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+    
+    <!-- Nav links -->
+	  
+
+	</div>
+  
+  <!-- Nav footer -->
+	
+	  
+
+	
+
+</nav>
+
+    
+    <!-- Icon menu -->
+	  <a id="nav-menu">
+	  	<div id="menu"></div>
+	  </a>
+
+      <!-- Header -->
+      
+        <header id="header" class="parent justify-spaceBetween">
+  <div class="inner w100 relative">
+    <span class="f-left">  
+      <a href="//">
+        <h1>
+          <span>nic-</span>lovin
+        </h1>
+      </a>
+    </span>
+    <span id="nav-links" class="absolute right bottom">
+      <!-- Nav pages -->
+	    
+	      
+	    
+	      
+	        <a href="/about" title="About">About</a>
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+      
+      <!-- Nav links -->
+	    
+
+    </span>
+  </div>
+</header>
+
+
+
+
+      
+
+    <!-- Main content -->
+	  <div id="container">
+		  
+		<main>
+
+			<article id="post-page">
+	<h2>Simple unpacking using IDA (Python)</h2>		
+	<time datetime="2020-02-09T16:01:47-05:00" class="by-line">09 Feb 2020</time>
+	<div class="content">
+
+		<p>Unpacking binaries is a common thing in malware analysis and binaries in CTFs. I used to put a breakpoint just before the unpacked was called, dumped the memory and analyzed it, but this comes with a lot of disadvantages (I still do it though.). In this post, I’ll show how I unpack binaries using IDA with its script engine in Python.</p>
+
+<h2 id="quick-look-on-the-binary">Quick look on the binary</h2>
+<p>The context of the binary is a simple challenge where the user enters an input and the binary validates it. I made a simple custom packer that xors a blob of data and jump into it right after.</p>
+
+<p><img src="/assets/unpacking/loop.png" alt="Loop of unpacking" /></p>
+
+<p>What happens here is in (1) <code class="highlighter-rouge">i</code> is put in <code class="highlighter-rouge">eax</code> register (and its value is 0), then the packed code is put in <code class="highlighter-rouge">rdx</code> register (2). The binary xors, one byte at a time, the blob in <code class="highlighter-rouge">code</code> with <code class="highlighter-rouge">0x0B</code> (3). This is repeated until <code class="highlighter-rouge">i</code> is equal or below <code class="highlighter-rouge">0x96</code>. At (4), the unpacked code is moved in <code class="highlighter-rouge">rdx</code>, and the code is finally called at (5).</p>
+
+<p>The C code will look like:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mh">0x96</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">code</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^=</span> <span class="mh">0x0b</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="p">)())</span> <span class="n">code</span><span class="p">)();</span>
+</code></pre></div></div>
+
+<p>What the code blob looks like:</p>
+
+<p><img src="/assets/unpacking/code.png" alt="Code blob" /></p>
+
+<p>And IDA wrongly disassembled some code. We can undefine what was disassembled by pressing <code class="highlighter-rouge">u</code>.</p>
+
+<p>One could put a breakpoint just before <code class="highlighter-rouge">call rdx</code>, dump the memory and analyze it, but we are here to unpack it using IDA.</p>
+
+<h2 id="ida-python">IDA Python</h2>
+
+<p>IDA supports scripting using Python and IDC. This can be done via <code class="highlighter-rouge">File -&gt; Script Command</code> or <code class="highlighter-rouge">SHIFT + F2</code>.
+Running the following script will do our unpacking:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">idaapi</span>
+<span class="kn">import</span> <span class="nn">idautils</span>
+
+<span class="n">ea_code</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">ea</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">idautils</span><span class="o">.</span><span class="n">Names</span><span class="p">():</span> <span class="c1"># Go through all global variables
+</span>	<span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">'code'</span><span class="p">:</span> <span class="c1"># If the name is 'code', the blob we want to unpack
+</span>		<span class="n">ea_code</span> <span class="o">=</span> <span class="n">ea</span>
+		<span class="k">break</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0x97</span><span class="p">):</span>
+	<span class="n">b</span> <span class="o">=</span> <span class="n">idaapi</span><span class="o">.</span><span class="n">get_byte</span><span class="p">(</span><span class="n">ea_code</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span> <span class="c1"># Get the byte at the offset
+</span>	<span class="n">b</span> <span class="o">^=</span> <span class="mh">0x0b</span>
+	<span class="n">idaapi</span><span class="o">.</span><span class="n">patch_byte</span><span class="p">(</span><span class="n">ea_code</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="c1"># Patch the byte with the xored one
+</span></code></pre></div></div>
+
+<p>Looking at our <code class="highlighter-rouge">code</code> blob, we can confirm they have been patched.</p>
+
+<p><img src="/assets/unpacking/patched.png" alt="Patched code" /></p>
+
+<h2 id="creating-the-function">Creating the function</h2>
+<p>Now that we unpacked the <code class="highlighter-rouge">code</code>, we can tell IDA to disasemble it. This can be done via <code class="highlighter-rouge">Edit -&gt; Code</code> or by pressing <code class="highlighter-rouge">c</code>.</p>
+
+<p><img src="/assets/unpacking/patched_disassembly.png" alt="Diassembly of patched code" /></p>
+
+<p>Having this in a function where we can analyze it with the Graph View would help. Pressing <code class="highlighter-rouge">p</code> will create a function. Finally, pressing the space bar and we get this:</p>
+
+<p><img src="/assets/unpacking/graph.png" alt="Created function graph" /></p>
+
+<h2 id="ipyida">IPyIDA</h2>
+<p>IPyIDA is a pluging giving us an IPython console, which is way more conveniant than the script command window.
+I highly recommand to check it out: <a href="https://github.com/eset/ipyida">https://github.com/eset/ipyida</a>.</p>
+
+		
+	</div>
+</article>
+
+
+
+	  </main>
+		
+		  <!-- Pagination links -->
+      
+
+	  </div>
+	    
+	    <!-- Footer -->
+	    
+
+	    <!-- Script -->
+      <script src="/js/main.js"></script>	
+
+
+	</div>
+</body>
+</html>
