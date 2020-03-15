@@ -192,7 +192,7 @@ And, after a few minutes, the flag should be printed:
 
 ## Angr
 
-Angr was also more efficent that this Python script...
+Angr was also more efficient than this Python script...
 
 ``` python
 import angr
