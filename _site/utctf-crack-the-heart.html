@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- Meta -->
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+	<meta name="generator" content="Jekyll">
+
+	<!-- Twitter cards -->
+	<meta name="twitter:site"    content="@_nlovin">
+	<meta name="twitter:creator" content="@_nlovin">
+	<meta name="twitter:title"   content="UTCTF 2020 - Crack the heart">
+
+	
+	<meta name="twitter:description" content="Patching a binary and pin it!">
+	
+
+	
+	<meta name="twitter:card"  content="summary">
+	<meta name="twitter:image" content="">
+	
+	<!-- end of Twitter cards -->
+
+
+
+	<title>UTCTF 2020 - Crack the heart</title>
+	<meta name="description" content="I write things that might be useful">
+
+	<!-- CSS & fonts -->
+	<link rel="stylesheet" href="/css/main.css">
+
+	<!-- RSS -->
+	<link href="/atom.xml" type="application/atom+xml" rel="alternate" title="ATOM Feed" />
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/png" href="img/favicon.png">
+
+</head>
+
+
+<body>
+	<div id="wrap">
+	  	
+	  	<!-- Navigation -->
+	  	<nav id="nav">
+	<div id="nav-list">
+		<a href="//">Home</a>
+
+		<!-- Nav pages -->
+	  
+	    
+	  
+	    
+	      <a href="/about" title="About">About</a>
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+    
+    <!-- Nav links -->
+	  
+
+	</div>
+  
+  <!-- Nav footer -->
+	
+	  
+
+	
+
+</nav>
+
+    
+    <!-- Icon menu -->
+	  <a id="nav-menu">
+	  	<div id="menu"></div>
+	  </a>
+
+      <!-- Header -->
+      
+        <header id="header" class="parent justify-spaceBetween">
+  <div class="inner w100 relative">
+    <span class="f-left">  
+      <a href="//">
+        <h1>
+          <span>nic-</span>lovin
+        </h1>
+      </a>
+    </span>
+    <span id="nav-links" class="absolute right bottom">
+      <!-- Nav pages -->
+	    
+	      
+	    
+	      
+	        <a href="/about" title="About">About</a>
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+      
+      <!-- Nav links -->
+	    
+
+    </span>
+  </div>
+</header>
+
+
+
+
+      
+
+    <!-- Main content -->
+	  <div id="container">
+		  
+		<main>
+
+			<article id="post-page">
+	<h2>UTCTF 2020 - Crack the heart</h2>		
+	<time datetime="2020-03-14T20:40:00-04:00" class="by-line">14 Mar 2020</time>
+	<div class="content">
+
+		<p>There was this challenge called <code class="highlighter-rouge">Crack the heart</code> during the UTCTF. Although it wasn’t particularly difficult, there were differents ways to solve this challenge: angr, digging deep down into the reversing, etc. My solution was to patch the binary and then pin it. As I like to not over reverse engineer a binary, I don’t know what really was the binary. It looked like some “Virtual Machine”, but I can’t tell much.</p>
+
+<h2 id="quick-look">Quick look</h2>
+
+<p>Doing a <code class="highlighter-rouge">file</code> on the binary:</p>
+
+<p><code class="highlighter-rouge">crackme: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, stripped</code></p>
+
+<p>Then put it in IDA, get this unusual start.
+<img src="/assets/crack_the_heart/start.png" alt="Start" /></p>
+
+<p>The content at <code class="highlighter-rouge">unk_404527</code> is:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.data:0000000000404527 unk_404527      db 0CFh
+.data:0000000000404528                 db  21h
+.data:0000000000404529                 db  40h
+.data:000000000040452A                 db    0
+.data:000000000040452B                 db    0
+.data:000000000040452C                 db    0
+.data:000000000040452D                 db    0
+.data:000000000040452E                 db    0
+</code></pre></div></div>
+
+<p>So, the binary will load <code class="highlighter-rouge">0x4021cf</code> into <code class="highlighter-rouge">RCX</code>, then will jump to this adress. IDA didn’t recognize it was code and didn’t disassembled it.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.data:00000000004021CF                 db  51h ; Q
+.data:00000000004021D0                 db 0BFh
+.data:00000000004021D1                 db    0
+.data:00000000004021D2                 db    0
+.data:00000000004021D3                 db    0
+.data:00000000004021D4                 db    0
+.data:00000000004021D5                 db 0BEh
+.data:00000000004021D6                 db    0
+.data:00000000004021D7                 db    0
+.data:00000000004021D8                 db    0
+.data:00000000004021D9                 db    0
+.data:00000000004021DA                 db 0BAh
+.data:00000000004021DB                 db    1
+.data:00000000004021DC                 db    0
+.data:00000000004021DD                 db    0
+[...]
+</code></pre></div></div>
+
+<p>We can transform it to code by pressing <code class="highlighter-rouge">&lt;c&gt;</code>. This makes more sense, but parts are missing. There is no user input, no flag validation. As there is a call to <code class="highlighter-rouge">ptrace</code>, I replaced it with <code class="highlighter-rouge">nop</code>s to be able to debug it.</p>
+
+<p>The following part contains the code flow, and that is why IDA didn’t recognize everything.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.data:00000000004021C6                 mov     rdx, [rcx]
+.data:00000000004021C9                 lea     rcx, [rcx+8]
+.data:00000000004021CD                 jmp     rdx
+</code></pre></div></div>
+
+<p>By looking around the code, we can find now code blocks. I found code blocks from <code class="highlighter-rouge">0x402000</code> to <code class="highlighter-rouge">0x0402242</code>. There were three interesting strings: <code class="highlighter-rouge">Why should I go with out?</code>, <code class="highlighter-rouge">uwu very cool!</code> and <code class="highlighter-rouge">that was pretty cringe</code>.</p>
+
+<p>At <code class="highlighter-rouge">0x040218B</code>, there is <code class="highlighter-rouge">syscall</code> to <code class="highlighter-rouge">read</code>, and it will displays the first interesting string. Of course, if <code class="highlighter-rouge">that was pretty cringe</code> is printed, the flag we entered was wrong. If we look at how this is handled, we can see a <code class="highlighter-rouge">if</code> condition at <code class="highlighter-rouge">0x040221B</code>.</p>
+
+<p><img src="/assets/crack_the_heart/if_good_flag.png" alt="test rbp, rbp" /></p>
+
+<p>So, if <code class="highlighter-rouge">rbp</code> is not equal to zero, our flag is wrong. We can look where <code class="highlighter-rouge">rbp</code> is set.</p>
+
+<p><img src="/assets/crack_the_heart/char_validation.png" alt="mov rbp, 1" /></p>
+
+<p>Here, we can see the flag validation. It checks one character at a time. If the character is bad, it sets <code class="highlighter-rouge">rbp</code> to 1, otherwise it jumps over that <code class="highlighter-rouge">mov</code>.</p>
+
+<h2 id="patch-and-pin-it">Patch and pin it!</h2>
+
+<p>As <code class="highlighter-rouge">rbp</code> is set to 1 and after all the characters were checked before printing the last string, we cannot pin it.</p>
+
+<p>The C code is something like:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ret = 0;
+int i;
+
+for (i = 0, i &lt; FLAG_LENGTH; i++) {
+    if (user_input[i] != flag[i]) {
+        ret = 1;
+    }
+}
+if (ret) {
+    puts("Wrong");
+} else {
+    puts("Good");
+}
+</code></pre></div></div>
+
+<p>If we want to pin it, we must have a way to make the binary quits when a bad character is entered:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ret = 0;
+int i;
+
+for (i = 0, i &lt; FLAG_LENGTH; i++) {
+    if (user_input[i] != flag[i]) {
+        exit(1);
+    }
+}
+if (ret) {
+    puts("Wrong");
+} else {
+    puts("Good");
+}
+</code></pre></div></div>
+
+<p>To do so, we can patch the <code class="highlighter-rouge">mov ebp, 1</code> to <code class="highlighter-rouge">ret</code>, and add <code class="highlighter-rouge">nop</code>s.</p>
+
+<p><img src="/assets/crack_the_heart/ret_nops.png" alt="Patched binary with ret and nops" /></p>
+
+<p>To test if everything is working, we can try a few characters.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Why should I go out with you?
+test
+
+ Performance counter stats for './crackme':
+
+             21,915      instructions:u
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Why should I go out with you?
+u     
+
+ Performance counter stats for './crackme':
+
+             22,063      instructions:u 
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Why should I go out with you?
+ut
+
+ Performance counter stats for './crackme':
+
+             22,195      instructions:u                                              
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Why should I go out with you?
+test
+
+ Performance counter stats for './crackme':
+
+             21,915      instructions:u 
+</code></pre></div></div>
+
+<p>It seems to work, more instructions are executed when the flag is good.</p>
+
+<p>I made up that quick and dirty Python script.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">def</span> <span class="nf">test_char</span><span class="p">(</span><span class="n">flag</span><span class="p">):</span>
+	<span class="c1"># Open the binary, submit a flag
+</span>        <span class="n">r</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'perf stat -e instructions:u ./crackme'</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+
+	<span class="c1"># Read the response, get the number of instructions it executed
+</span>        <span class="n">instr</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">recvall</span><span class="p">()</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">instr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">"instructions"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">','</span><span class="p">,</span> <span class="s">''</span><span class="p">)</span> 
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+
+<span class="n">flag</span> <span class="o">=</span> <span class="s">''</span> 
+<span class="n">nb</span> <span class="o">=</span> <span class="mi">21915</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">):</span> <span class="c1"># Arbitrary length
+</span>    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">printable</span><span class="p">:</span>
+        <span class="n">flag_test</span> <span class="o">=</span> <span class="n">flag</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="p">)</span>   
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">test_char</span><span class="p">(</span><span class="n">flag_test</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tmp</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">nb</span> <span class="o">+</span> <span class="mi">30</span><span class="p">):</span> <span class="c1"># If more instructions were executed, the character is good
+</span>            <span class="n">flag</span> <span class="o">=</span> <span class="n">flag_test</span>
+            <span class="n">nb</span> <span class="o">=</span> <span class="n">tmp</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+            <span class="k">break</span>
+<span class="k">print</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>And, after a few minutes, the flag should be printed:</p>
+
+<p><code class="highlighter-rouge">utflag{what_1f....i_mapp3d_mY_m3m0ry_n3xt_to_y0urs....ahahaha, jkjk....unless ;)?}</code></p>
+
+<h2 id="angr">Angr</h2>
+
+<p>Angr was also more efficent that this Python script…</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">angr</span>
+
+<span class="n">proj</span> <span class="o">=</span> <span class="n">angr</span><span class="o">.</span><span class="n">Project</span><span class="p">(</span><span class="s">"./crackme"</span><span class="p">)</span>
+<span class="n">simgr</span> <span class="o">=</span> <span class="n">proj</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">simgr</span><span class="p">()</span>
+<span class="n">simgr</span><span class="o">.</span><span class="n">explore</span><span class="p">(</span><span class="n">find</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">b</span><span class="s">"cool"</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">posix</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">simgr</span><span class="o">.</span><span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">posix</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</code></pre></div></div>
+
+		
+	</div>
+</article>
+
+
+
+	  </main>
+		
+		  <!-- Pagination links -->
+      
+
+	  </div>
+	    
+	    <!-- Footer -->
+	    
+
+	    <!-- Script -->
+      <script src="/js/main.js"></script>	
+
+
+	</div>
+</body>
+</html>

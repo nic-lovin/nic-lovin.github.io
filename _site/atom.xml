@@ -4,12 +4,22 @@
  <title>nic-lovin's blog</title>
  <link href="http://localhost:4000/atom.xml" rel="self"/>
  <id>http://localhost:4000</id>
- <updated>2020-02-11T09:54:51-05:00</updated>
+ <updated>2020-03-14T22:01:23-04:00</updated>
  <author>
    <name>Nicolas Lamoureux</name>
    <uri>https://nic-lovin.github.io</uri>
    <email></email>
  </author>
+
+ 
+
+ <entry>
+   <title>UTCTF 2020 - Crack the heart</title>
+   <link href="http://localhost:4000/utctf-crack-the-heart"/>
+   <id>http://localhost:4000/utctf-crack-the-heart</id>
+   <updated>2020-03-14T20:40:00-04:00</updated>
+   <content type="html">&lt;p&gt;There was this challenge called &lt;code class=&quot;highlighter-rouge&quot;&gt;Crack the heart&lt;/code&gt; during the UTCTF. Although it wasn’t particularly difficult, there were differents ways to solve this challenge: angr, digging deep down into the reversing, etc. My solution was to patch the binary and then pin it. As I like to not over...</content>
+ </entry>
 
  
 
