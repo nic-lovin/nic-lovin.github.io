@@ -78,7 +78,7 @@ As `rbp` is set to 1 and after all the characters were checked before printing t
 
 The C code is something like:
 
-``` C
+``` c
 ret = 0;
 int i;
 
@@ -96,7 +96,7 @@ if (ret) {
 
 If we want to pin it, we must have a way to make the binary quits when a bad character is entered:
 
-```
+``` c
 ret = 0;
 int i;
 
