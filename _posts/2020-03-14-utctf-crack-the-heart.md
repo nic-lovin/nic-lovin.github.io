@@ -78,7 +78,7 @@ As `rbp` is set to 1 and after all the characters were checked before printing t
 
 The C code is something like:
 
-```
+``` C
 ret = 0;
 int i;
 
