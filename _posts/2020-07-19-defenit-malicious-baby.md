@@ -50,6 +50,18 @@ Some functions lead us to a possible process injection (DLL injection, process h
 
 As the binary will want to inject into a remote process, we will watch what process by hooking on `Process32NextW`, and will hook what's being injected by hooking `QueueUserAPC`, all using `xdbg`.
 
+`Process32NextW` is used to iterate through all the processes running on the system, and `QueueUserAPC` is defined as follow.
+
+``` c
+DWORD QueueUserAPC(
+  PAPCFUNC  pfnAPC,
+  HANDLE    hThread,
+  ULONG_PTR dwData
+);
+```
+
+> `pfnAPC`: A pointer to the application-supplied APC function to be called when the specified thread performs an alertable wait operation. 
+
 ![Looking for calc.exe](../assets/malicious_baby/calc_exe.png)
 
 So, we can guess the binary is looking for a process `calc.exe`. Let's just open one and rerun the binary. It will the break on `QueueUserAPC`. By looking at the parameters, we can see one function address, `0x18F948` in our case. We can right-click and select `Follow DWORD in Disassembler`. It is in the middle of a function. By looking around the function, we can see one with suspicious instructions.
