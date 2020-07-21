@@ -46,11 +46,11 @@ HeapReAlloc
 [...]
 ```
 
-Some functions lead us to a possible process injection (DLL injection, process hollowing, process Doppelgänging, etc.). Those functions are `Process32NextW`, `Process32FirstW`, `OpenProcess`, `CreateToolhelp32Snapshot` and so on. Particular functions in this list are `GlobalDeleteAtom`, `GlobalGetAtomNameW`, `GlobalAddAtomW`. One known method of injecting into a remote process is called `atom bombing` (https://www.enisa.europa.eu/publications/info-notes/atombombing-2013-a-new-code-injection-attack), we that just might be it.
+Some functions lead us to a possible process injection (DLL injection, process hollowing, process Doppelgänging, etc.). Those functions are `Process32NextW`, `Process32FirstW`, `OpenProcess`, `CreateToolhelp32Snapshot` and so on. Particular functions in this list are `GlobalDeleteAtom`, `GlobalGetAtomNameW`, `GlobalAddAtomW`. One known method of injecting into a remote process is called `atom bombing` (https://www.enisa.europa.eu/publications/info-notes/atombombing-2013-a-new-code-injection-attack), and that just might be it.
 
 As the binary will want to inject into a remote process, we will watch what process by hooking on `Process32NextW`, and will hook what's being injected by hooking `QueueUserAPC`, all using `xdbg`.
 
-`Process32NextW` is used to iterate through all the processes running on the system, and `QueueUserAPC` is defined as follow.
+`Process32NextW` is used to iterate through all processes running on the system, and `QueueUserAPC` is defined as follow.
 
 ``` c
 DWORD QueueUserAPC(
@@ -64,7 +64,7 @@ DWORD QueueUserAPC(
 
 ![Looking for calc.exe](../assets/malicious_baby/calc_exe.png)
 
-So, we can guess the binary is looking for a process `calc.exe`. Let's just open one and rerun the binary. It will the break on `QueueUserAPC`. By looking at the parameters, we can see one function address, `0x18F948` in our case. We can right-click and select `Follow DWORD in Disassembler`. It is in the middle of a function. By looking around the function, we can see one with suspicious instructions.
+So, we can guess the binary is looking for a process `calc.exe`. Let's just open one and rerun the binary. It will then break on `QueueUserAPC`. By looking at the parameters, we can see one function address, `0x18F948` in our case. We can right-click and select `Follow DWORD in Disassembler`. It is in the middle of a function. By looking around the function, we can see one with suspicious instructions.
 
 ![Suspicious function](../assets/malicious_baby/function.png)
 
