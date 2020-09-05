@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- Meta -->
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+	<meta name="generator" content="Jekyll">
+
+	<!-- Twitter cards -->
+	<meta name="twitter:site"    content="@_nlovin">
+	<meta name="twitter:creator" content="@_nlovin">
+	<meta name="twitter:title"   content="Defenit CTF 2020 - Malicious Baby">
+
+	
+	<meta name="twitter:description" content="Unpacking a binary and get the flag">
+	
+
+	
+	<meta name="twitter:card"  content="summary">
+	<meta name="twitter:image" content="">
+	
+	<!-- end of Twitter cards -->
+
+
+
+	<title>Defenit CTF 2020 - Malicious Baby</title>
+	<meta name="description" content="I write things that might be useful">
+
+	<!-- CSS & fonts -->
+	<link rel="stylesheet" href="/css/main.css">
+
+	<!-- RSS -->
+	<link href="/atom.xml" type="application/atom+xml" rel="alternate" title="ATOM Feed" />
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/png" href="img/favicon.png">
+
+</head>
+
+
+<body>
+	<div id="wrap">
+	  	
+	  	<!-- Navigation -->
+	  	<nav id="nav">
+	<div id="nav-list">
+		<a href="//">Home</a>
+
+		<!-- Nav pages -->
+	  
+	    
+	  
+	    
+	      <a href="/about" title="About">About</a>
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+    
+    <!-- Nav links -->
+	  
+
+	</div>
+  
+  <!-- Nav footer -->
+	
+	  
+
+	
+
+</nav>
+
+    
+    <!-- Icon menu -->
+	  <a id="nav-menu">
+	  	<div id="menu"></div>
+	  </a>
+
+      <!-- Header -->
+      
+        <header id="header" class="parent justify-spaceBetween">
+  <div class="inner w100 relative">
+    <span class="f-left">  
+      <a href="//">
+        <h1>
+          <span>nic-</span>lovin
+        </h1>
+      </a>
+    </span>
+    <span id="nav-links" class="absolute right bottom">
+      <!-- Nav pages -->
+	    
+	      
+	    
+	      
+	        <a href="/about" title="About">About</a>
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+      
+      <!-- Nav links -->
+	    
+
+    </span>
+  </div>
+</header>
+
+
+
+
+      
+
+    <!-- Main content -->
+	  <div id="container">
+		  
+		<main>
+
+			<article id="post-page">
+	<h2>Defenit CTF 2020 - Malicious Baby</h2>		
+	<time datetime="2020-07-19T19:40:00-04:00" class="by-line">19 Jul 2020</time>
+	<div class="content">
+
+		<p>Defenit CTF 2020 had a reverse engineering chalenge, <code class="highlighter-rouge">Malicious Baby</code>, which was a Windows binary. The goal was to unpack it and get the flag, as the description tells us.</p>
+<blockquote>
+  <p>Description: There is a malicious binary packed with a PE Packer I made for you. Your mission is unpacking the malware manually and recognizing the technique it uses.
+File: MaliciousBaby.exe</p>
+</blockquote>
+
+<h2 id="dynamic-analysis">Dynamic analysis</h2>
+
+<p>Doing a <code class="highlighter-rouge">file</code> on the binary:</p>
+
+<p><code class="highlighter-rouge">MaliciousBaby.exe: MS-DOS executable</code></p>
+
+<p>Not too much information one that one. In IDA, there’s only 4 functions, as we might expect from a packed binary. Looking at the imports, we have <code class="highlighter-rouge">LoadLibraryA</code>, <code class="highlighter-rouge">GetProcAddress</code>, <code class="highlighter-rouge">VirtuaProtect</code> and <code class="highlighter-rouge">ExitProcess</code>, which indicates the binary will dynamically resolve other functions. However, by running <code class="highlighter-rouge">strings</code>, we can see a bunch of functions that might be imported later.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HeapFree
+SetLastError
+GetCurrentProcess
+WaitForMultipleObjects
+GetProcessId
+Thread32Next
+Thread32First
+SuspendThread
+GlobalDeleteAtom
+ResumeThread
+GlobalGetAtomNameW
+DuplicateHandle
+GetModuleHandleA
+GlobalAddAtomW
+OpenProcess
+CreateToolhelp32Snapshot
+CreateEventW
+Sleep
+GetLastError
+Process32NextW
+SetEvent
+GetCurrentThread
+Process32FirstW
+HeapReAlloc
+[...]
+</code></pre></div></div>
+
+<p>Some functions lead us to a possible process injection (DLL injection, process hollowing, process Doppelgänging, etc.). Those functions are <code class="highlighter-rouge">Process32NextW</code>, <code class="highlighter-rouge">Process32FirstW</code>, <code class="highlighter-rouge">OpenProcess</code>, <code class="highlighter-rouge">CreateToolhelp32Snapshot</code> and so on. Particular functions in this list are <code class="highlighter-rouge">GlobalDeleteAtom</code>, <code class="highlighter-rouge">GlobalGetAtomNameW</code>, <code class="highlighter-rouge">GlobalAddAtomW</code>. One known method of injecting into a remote process is called <code class="highlighter-rouge">atom bombing</code> (https://www.enisa.europa.eu/publications/info-notes/atombombing-2013-a-new-code-injection-attack), and that just might be it.</p>
+
+<p>As the binary will want to inject into a remote process, we will watch what process by hooking on <code class="highlighter-rouge">Process32NextW</code>, and will hook what’s being injected by hooking <code class="highlighter-rouge">QueueUserAPC</code>, all using <code class="highlighter-rouge">xdbg</code>.</p>
+
+<p><code class="highlighter-rouge">Process32NextW</code> is used to iterate through all processes running on the system, and <code class="highlighter-rouge">QueueUserAPC</code> is defined as follow.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DWORD</span> <span class="n">QueueUserAPC</span><span class="p">(</span>
+  <span class="n">PAPCFUNC</span>  <span class="n">pfnAPC</span><span class="p">,</span>
+  <span class="n">HANDLE</span>    <span class="n">hThread</span><span class="p">,</span>
+  <span class="n">ULONG_PTR</span> <span class="n">dwData</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p><code class="highlighter-rouge">pfnAPC</code>: A pointer to the application-supplied APC function to be called when the specified thread performs an alertable wait operation.</p>
+</blockquote>
+
+<p><img src="../assets/malicious_baby/calc_exe.png" alt="Looking for calc.exe" /></p>
+
+<p>So, we can guess the binary is looking for a process <code class="highlighter-rouge">calc.exe</code>. Let’s just open one and rerun the binary. It will then break on <code class="highlighter-rouge">QueueUserAPC</code>. By looking at the parameters, we can see one function address, <code class="highlighter-rouge">0x18F948</code> in our case. We can right-click and select <code class="highlighter-rouge">Follow DWORD in Disassembler</code>. It is in the middle of a function. By looking around the function, we can see one with suspicious instructions.</p>
+
+<p><img src="../assets/malicious_baby/function.png" alt="Suspicious function" /></p>
+
+<p>As we can see, it might again resolve dynamically some functions using stack strings. What is interesting is the string being transformed.</p>
+
+<p><img src="../assets/malicious_baby/decryption.png" alt="String decryption" /></p>
+
+<p>I didn’t feel like reversing it or writing a python script so I just jumped on the beginning of the function (right-click and select <code class="highlighter-rouge">Set New Origin Here</code>), let the function push the strings then I jumped onto the beginning of the loop. I put a breakpoint on the <code class="highlighter-rouge">mov byte ptr ss:[ebp+ecx-7C],al</code> instruction to see what was there, as the byte being “decrypted” was pushed there. The first character was <code class="highlighter-rouge">D</code> and then <code class="highlighter-rouge">e</code>. That looked nice, and we got the flag.</p>
+
+<p><img src="../assets/malicious_baby/flag.png" alt="The flag" /></p>
+
+<h2 id="summary">Summary</h2>
+<p>As the flag tells us, the process was doing <code class="highlighter-rouge">atom bombing</code>, but we didn’t really care since we just hooked on interesting functions. That wasn’t a really hard challenge, but was fun for sure!</p>
+
+		
+	</div>
+</article>
+
+
+
+	  </main>
+		
+		  <!-- Pagination links -->
+      
+
+	  </div>
+	    
+	    <!-- Footer -->
+	    
+
+	    <!-- Script -->
+      <script src="/js/main.js"></script>	
+
+
+	</div>
+</body>
+</html>

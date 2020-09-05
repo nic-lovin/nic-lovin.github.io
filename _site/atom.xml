@@ -4,12 +4,32 @@
  <title>nic-lovin's blog</title>
  <link href="http://localhost:4000/atom.xml" rel="self"/>
  <id>http://localhost:4000</id>
- <updated>2020-03-14T22:01:23-04:00</updated>
+ <updated>2020-09-05T18:26:51-04:00</updated>
  <author>
    <name>Nicolas Lamoureux</name>
    <uri>https://nic-lovin.github.io</uri>
    <email></email>
  </author>
+
+ 
+
+ <entry>
+   <title>Analysing IcedId: The macro and Mshta</title>
+   <link href="http://localhost:4000/icedid-macro"/>
+   <id>http://localhost:4000/icedid-macro</id>
+   <updated>2020-09-05T17:40:00-04:00</updated>
+   <content type="html">&lt;h2 id=&quot;analysing-icedid-malware&quot;&gt;Analysing IcedID malware&lt;/h2&gt; &lt;h3 id=&quot;context&quot;&gt;Context&lt;/h3&gt; &lt;p&gt;I was looking up for a malware to analyse just for fun. One day, I’ve saw a post on twitter from &lt;a href=&quot;https://twitter.com/reecdeep/status/1300432198135418880&quot;&gt;Suspicious Link&lt;/a&gt;, when there was a link to the &lt;a href=&quot;https://app.any.run/tasks/d52f66be-14f1-47fc-ad3b-77c89c0e2b77/&quot;&gt;app.any.run&lt;/a&gt; sample. I thought it would be an opportunity to check out...</content>
+ </entry>
+
+ 
+
+ <entry>
+   <title>Defenit CTF 2020 - Malicious Baby</title>
+   <link href="http://localhost:4000/defenit-malicious-baby"/>
+   <id>http://localhost:4000/defenit-malicious-baby</id>
+   <updated>2020-07-19T19:40:00-04:00</updated>
+   <content type="html">&lt;p&gt;Defenit CTF 2020 had a reverse engineering chalenge, &lt;code class=&quot;highlighter-rouge&quot;&gt;Malicious Baby&lt;/code&gt;, which was a Windows binary. The goal was to unpack it and get the flag, as the description tells us.&lt;/p&gt; &lt;blockquote&gt; &lt;p&gt;Description: There is a malicious binary packed with a PE Packer I made for you. Your mission is...</content>
+ </entry>
 
  
 

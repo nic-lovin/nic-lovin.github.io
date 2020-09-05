@@ -207,36 +207,36 @@
 
 <p>The C code is something like:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ret = 0;
-int i;
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
 
-for (i = 0, i &lt; FLAG_LENGTH; i++) {
-    if (user_input[i] != flag[i]) {
-        ret = 1;
-    }
-}
-if (ret) {
-    puts("Wrong");
-} else {
-    puts("Good");
-}
+<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">FLAG_LENGTH</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">user_input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">flag</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="p">{</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">"Wrong"</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">"Good"</span><span class="p">);</span>
+<span class="p">}</span>
 </code></pre></div></div>
 
 <p>If we want to pin it, we must have a way to make the binary quits when a bad character is entered:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ret = 0;
-int i;
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
 
-for (i = 0, i &lt; FLAG_LENGTH; i++) {
-    if (user_input[i] != flag[i]) {
-        exit(1);
-    }
-}
-if (ret) {
-    puts("Wrong");
-} else {
-    puts("Good");
-}
+<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">FLAG_LENGTH</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">user_input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">flag</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="p">{</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">"Wrong"</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">"Good"</span><span class="p">);</span>
+<span class="p">}</span>
 </code></pre></div></div>
 
 <p>To do so, we can patch the <code class="highlighter-rouge">mov ebp, 1</code> to <code class="highlighter-rouge">ret</code>, and add <code class="highlighter-rouge">nop</code>s.</p>
@@ -314,7 +314,7 @@ test
 
 <h2 id="angr">Angr</h2>
 
-<p>Angr was also more efficent that this Python script…</p>
+<p>Angr was also more efficient than this Python script…</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">angr</span>
 
