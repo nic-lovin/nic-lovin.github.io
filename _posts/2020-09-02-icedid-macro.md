@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Analysing IcedId: The macro and Mshta"
+title: "Analysing IcedID: The macro and Mshta"
 summary: "Analysing the macro and Mshta in the docx file"
 date:   2020-09-05 17:40:00 -0400
 categories: Reverse engineering
