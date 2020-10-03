@@ -4,7 +4,7 @@
  <title>nic-lovin's blog</title>
  <link href="http://localhost:4000/atom.xml" rel="self"/>
  <id>http://localhost:4000</id>
- <updated>2020-09-05T18:26:51-04:00</updated>
+ <updated>2020-10-02T20:16:47-04:00</updated>
  <author>
    <name>Nicolas Lamoureux</name>
    <uri>https://nic-lovin.github.io</uri>
@@ -14,7 +14,7 @@
  
 
  <entry>
-   <title>Analysing IcedId: The macro and Mshta</title>
+   <title>Analysing IcedID: The macro and Mshta</title>
    <link href="http://localhost:4000/icedid-macro"/>
    <id>http://localhost:4000/icedid-macro</id>
    <updated>2020-09-05T17:40:00-04:00</updated>
