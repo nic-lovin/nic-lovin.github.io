@@ -2,7 +2,7 @@
 layout: post
 title: "Rails & Active Storage"
 summary: "Unauthenticated file upload & possible CSP bypass"
-date:   2025-06-30 18:30:00 -0400
+date:   2025-06-30 16:10:00 -0400
 categories: Web 
 ---
 
