@@ -56,7 +56,7 @@ Before we dig into the root cause, here are the PoCs:
 
 ```sh
 curl http://localhost:8000/static/test -H 'Host: localhost:/../../../etc/passwd?'
-curl http://localhost:8000/admin -H 'Host: localhost/test?'
+curl http://localhost:8000/admin/home -H 'Host: localhost/test?'
 ```
 
 ## Root cause
@@ -67,7 +67,7 @@ if host_header is not None:
     url = f"{scheme}://{host_header}{path}"
 ```
 
-By poisoning the `Host`, the URL will be equal to `http://localhost/test?/admin`. When `request.url.path` (or any other properties from `request.url` is used), the app will return the value from `urlsplit(url).someProperty`, so `request.url.path`  with the polluted `Host` will return `/test`, which bypasses the check `if request.url.path.startswith("/admin")`. The app will still call the proper route handler though.
+By poisoning the `Host`, the URL will be equal to `http://localhost/test?/admin/home`. When `request.url.path` (or any other properties from `request.url` is used), the app will return the value from `urlsplit(url).someProperty`, so `request.url.path`  with the polluted `Host` will return `/test`, which bypasses the check `if request.url.path.startswith("/admin")`. The app will still call the proper route handler though.
 
 ```py
 @property
