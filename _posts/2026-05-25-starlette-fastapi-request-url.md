@@ -1,4 +1,3 @@
-
 ---
 layout: post
 title: "Poisoning request.url.path in Starlette / FastAPI"
