@@ -9,14 +9,14 @@ categories: Web
 # Poisoning `request.url.path` can lead to bypassing path-based validation
 
 ## Background
-Starlette is a "Starlette is a lightweight ASGI framework/toolkit, which is ideal for building async web services in Python.". It is heavily used by FastAPI.
+Starlette is "a lightweight ASGI framework/toolkit, which is ideal for building async web services in Python.". It is heavily used by FastAPI.
 
 In February 2026, I reported this issue to Starlette. At about the same time, X41 D-Sec also reported it. Here is their blog post: [https://x41-dsec.de/lab/advisories/x41-2026-002-starlette/](https://x41-dsec.de/lab/advisories/x41-2026-002-starlette/).
 
 Starlette issued the GitHub Advisory [GHSA-86qp-5c8j-p5mr](https://github.com/Kludex/starlette/security/advisories/GHSA-86qp-5c8j-p5mr) and CVE-2026-48710.
 
 ## Vulnerable code
-Here are two endpoints that can lead to a path traversal and the oher to an authentication bypass. Can you find the trick?
+Here are two endpoints that can lead to a path traversal and the oher one to an authentication bypass. Can you find the trick?
 
 ```py
 from starlette.applications import Starlette
