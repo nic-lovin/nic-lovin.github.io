@@ -16,7 +16,7 @@ In February 2026, I reported this issue to Starlette. At about the same time, X4
 Starlette issued the GitHub Advisory [GHSA-86qp-5c8j-p5mr](https://github.com/Kludex/starlette/security/advisories/GHSA-86qp-5c8j-p5mr) and CVE-2026-48710.
 
 ## Vulnerable code
-Here are two endpoints that can lead to a path traversal and the oher one to an authentication bypass. Can you find the trick?
+Here are two endpoints that can lead to a path traversal and the other one to an authentication bypass. Can you find the trick?
 
 ```py
 from starlette.applications import Starlette
